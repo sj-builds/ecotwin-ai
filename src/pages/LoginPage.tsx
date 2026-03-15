@@ -1,108 +1,182 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
+import {
+  signInWithEmailAndPassword,
+  signInWithPopup
+} from "firebase/auth";
+
+import { auth, googleProvider } from "@/lib/firebase";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+
+  const [email,setEmail] = useState("");
+  const [password,setPassword] = useState("");
+  const [loading,setLoading] = useState(false);
+
+
+  const handleLogin = async (e:React.FormEvent)=>{
     e.preventDefault();
-    navigate('/');
+    setLoading(true);
+
+    try{
+
+      await signInWithEmailAndPassword(auth,email,password);
+
+      navigate("/dashboard",{replace:true});
+
+    }catch(error:any){
+
+      alert(error.message);
+
+    }
+
+    setLoading(false);
   };
 
-  return (
-    <div className="min-h-screen bg-background flex">
-      {/* Left - Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-card border-r border-border flex-col justify-between p-12">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-lg font-bold text-primary-foreground">ET</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-light tracking-display text-foreground">ECOTWIN AI</h1>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Sustainable Campus Digital Twin</span>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-6">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <p className="text-3xl font-light tracking-display text-foreground leading-tight">
-              Sustainability is an<br />
-              <span className="text-gradient-emerald">optimization problem.</span>
-            </p>
-          </motion.div>
-          <div className="grid grid-cols-3 gap-4 pt-4">
-            {[
-              { value: '84', label: 'Campus Score' },
-              { value: '-12%', label: 'Carbon Reduction' },
-              { value: '23', label: 'Active Alerts' },
-            ].map((stat, i) => (
-              <motion.div key={stat.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.1 }}
-                className="border border-border rounded-md p-3">
-                <span className="text-xl font-light tracking-display text-primary tabular-nums">{stat.value}</span>
-                <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">{stat.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-        <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">
-          © 2026 EcoTwin AI — University Sustainability Platform
-        </p>
-      </div>
 
-      {/* Right - Login Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm space-y-8">
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="h-8 w-8 rounded-md bg-primary flex items-center justify-center">
-              <span className="text-sm font-bold text-primary-foreground">ET</span>
-            </div>
-            <span className="text-lg font-light tracking-display text-foreground">ECOTWIN AI</span>
+  const handleGoogleLogin = async ()=>{
+
+    try{
+
+      await signInWithPopup(auth,googleProvider);
+
+      navigate("/dashboard",{replace:true});
+
+    }catch(error){
+
+      alert("Google login failed");
+
+    }
+
+  };
+
+
+  return(
+
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 via-black to-emerald-800 p-6">
+
+      <motion.div
+        initial={{opacity:0,y:20}}
+        animate={{opacity:1,y:0}}
+        transition={{duration:0.5}}
+        className="w-full max-w-md backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-8 shadow-2xl"
+      >
+
+        {/* Logo */}
+
+        <div className="flex items-center gap-3 mb-8">
+
+          <div className="h-10 w-10 rounded-lg bg-emerald-500 flex items-center justify-center">
+            <span className="text-black font-bold">ET</span>
           </div>
 
           <div>
-            <h2 className="text-xl font-light tracking-display text-foreground">SYSTEM ACCESS</h2>
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mt-1">Authenticate to continue</p>
+
+            <h1 className="text-xl text-white font-semibold">
+              EcoTwin AI
+            </h1>
+
+            <p className="text-xs text-gray-400 uppercase tracking-wider">
+              Sustainable Campus Digital Twin
+            </p>
+
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground block mb-2">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                className="w-full bg-card border border-border rounded-md px-4 py-2.5 text-sm text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                placeholder="admin@university.edu"
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground block mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                className="w-full bg-card border border-border rounded-md px-4 py-2.5 text-sm text-foreground font-mono focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                placeholder="••••••••••"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full py-2.5 bg-primary text-primary-foreground rounded-md text-xs font-mono uppercase tracking-widest hover:brightness-110 transition-all"
-            >
-              Authenticate
-            </button>
-          </form>
+        </div>
 
-          <p className="text-[10px] font-mono text-muted-foreground text-center uppercase tracking-widest">
-            Demo mode — any credentials accepted
+
+        {/* Title */}
+
+        <div className="mb-6">
+
+          <h2 className="text-lg text-white font-medium">
+            System Access
+          </h2>
+
+          <p className="text-sm text-gray-400">
+            Authenticate to continue
           </p>
-        </motion.div>
-      </div>
+
+        </div>
+
+
+        {/* Login Form */}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e)=>setEmail(e.target.value)}
+            required
+            className="w-full px-4 py-3 rounded-md bg-black/40 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e)=>setPassword(e.target.value)}
+            required
+            className="w-full px-4 py-3 rounded-md bg-black/40 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400"
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-md bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition"
+          >
+            {loading ? "Authenticating..." : "Authenticate"}
+          </button>
+
+        </form>
+
+
+        {/* Divider */}
+
+        <div className="flex items-center my-6">
+
+          <div className="flex-1 h-px bg-gray-700"></div>
+          <span className="px-3 text-gray-400 text-sm">OR</span>
+          <div className="flex-1 h-px bg-gray-700"></div>
+
+        </div>
+
+
+        {/* Google Login */}
+
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full py-3 border border-gray-600 rounded-md text-white hover:bg-white/5 transition"
+        >
+          Sign in with Google
+        </button>
+
+
+        {/* Signup */}
+
+        <p className="text-center text-sm text-gray-400 mt-6">
+
+          Don't have an account?{" "}
+
+          <span
+            onClick={()=>navigate("/signup")}
+            className="text-emerald-400 cursor-pointer hover:underline"
+          >
+            Sign up
+          </span>
+
+        </p>
+
+      </motion.div>
+
     </div>
+
   );
+
 }
