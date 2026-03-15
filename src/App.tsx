@@ -1,6 +1,8 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
+import { SidebarProvider } from "@/components/ui/sidebar";
+
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,81 +17,87 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
 export default function App() {
+
   return (
     <QueryClientProvider client={queryClient}>
+
       <TooltipProvider>
 
-        <Toaster />
-        <Sonner />
+        <SidebarProvider>
 
-        <BrowserRouter>
+          <BrowserRouter>
 
-          <Routes>
+            <Toaster />
+            <Sonner />
 
-            {/* Auth Routes */}
-            <Route path="/" element={<Navigate to="/login" />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
+            <Routes>
 
-            {/* Protected Dashboard Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
+              {/* Auth */}
+              <Route path="/" element={<Navigate to="/login" />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
 
-            <Route
-              path="/digital-twin"
-              element={
-                <ProtectedRoute>
-                  <DigitalTwin />
-                </ProtectedRoute>
-              }
-            />
+              {/* Protected */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/ai-insights"
-              element={
-                <ProtectedRoute>
-                  <AIInsightsPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/digital-twin"
+                element={
+                  <ProtectedRoute>
+                    <DigitalTwin />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/alerts"
-              element={
-                <ProtectedRoute>
-                  <AlertsPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/ai-insights"
+                element={
+                  <ProtectedRoute>
+                    <AIInsightsPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/reports"
-              element={
-                <ProtectedRoute>
-                  <ReportsPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/alerts"
+                element={
+                  <ProtectedRoute>
+                    <AlertsPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route path="*" element={<NotFound />} />
+              <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute>
+                    <ReportsPage />
+                  </ProtectedRoute>
+                }
+              />
 
-          </Routes>
+              <Route path="*" element={<NotFound />} />
 
-        </BrowserRouter>
+            </Routes>
+
+          </BrowserRouter>
+
+        </SidebarProvider>
 
       </TooltipProvider>
+
     </QueryClientProvider>
   );
 }

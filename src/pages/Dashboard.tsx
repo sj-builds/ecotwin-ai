@@ -1,21 +1,18 @@
 import { motion } from "framer-motion";
 import { Zap, Droplets, Trash2, CloudRain, Gauge } from "lucide-react";
-import { MetricCard } from "@/components/MetricCard";
+import MetricCard  from "@/components/MetricCard";
 import { AlertItem } from "@/components/AlertItem";
 import { DashboardLayout } from "@/components/DashboardLayout";
 
 import {
   campusMetrics,
   energyTrendData,
-  waterUsageData,
   wasteData,
   alerts,
   aiInsights,
 } from "@/data/mockData";
 
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -29,13 +26,15 @@ import {
   Legend,
 } from "recharts";
 
-/* -------------------- AI Forecast Simulation -------------------- */
+/* ---------------- AI Forecast Simulation ---------------- */
 
 function generateAIForecast(data: { month: string; actual: number }[]) {
+
   const last = data.slice(-3);
 
   const growth =
-    (last[2].actual - last[0].actual) / Math.max(1, last[0].actual);
+    (last[2].actual - last[0].actual) /
+    Math.max(1, last[0].actual);
 
   const predicted = Math.round(last[2].actual * (1 + growth));
 
@@ -45,13 +44,15 @@ function generateAIForecast(data: { month: string; actual: number }[]) {
   };
 }
 
-/* -------------------- Tooltip -------------------- */
+/* ---------------- Tooltip ---------------- */
 
 const CustomTooltip = ({ active, payload, label }: any) => {
+
   if (!active || !payload) return null;
 
   return (
     <div className="bg-card border border-border rounded-md p-3 text-xs font-mono">
+
       <p className="text-muted-foreground mb-1">{label}</p>
 
       {payload.map((p: any, i: number) => (
@@ -59,50 +60,62 @@ const CustomTooltip = ({ active, payload, label }: any) => {
           {p.name}: {p.value.toLocaleString()}
         </p>
       ))}
+
     </div>
   );
 };
 
-/* -------------------- Dashboard Component -------------------- */
+/* ---------------- Dashboard ---------------- */
 
 export default function Dashboard() {
-  const topAlerts = alerts.filter((a) => !a.resolved).slice(0, 3);
-  const topInsights = aiInsights.slice(0, 3);
+
+  const topAlerts = alerts.filter(a => !a.resolved).slice(0,3);
+  const topInsights = aiInsights.slice(0,3);
 
   const forecast = generateAIForecast(
-    energyTrendData.map((d) => ({ month: d.month, actual: d.actual }))
+    energyTrendData.map(d => ({
+      month:d.month,
+      actual:d.actual
+    }))
   );
 
   return (
-    <DashboardLayout>
-      <div className="space-y-6 max-w-[1400px]">
 
-        {/* -------------------- Header -------------------- */}
+    <DashboardLayout>
+
+      <div className="space-y-8 max-w-[1400px]">
+
+
+        {/* Header */}
 
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{opacity:0}}
+          animate={{opacity:1}}
           className="flex items-end justify-between"
         >
+
           <div>
+
             <h1 className="text-2xl font-light tracking-display text-foreground">
-              SUSTAINABILITY DASHBOARD
+              Sustainability Dashboard
             </h1>
 
             <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mt-1">
-              Campus overview —{" "}
-              {new Date().toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
+
+              Campus overview — {new Date().toLocaleDateString()}
+
             </p>
 
-            <span className="text-green-500 text-xs font-mono">● Live Data</span>
+            <span className="text-green-500 text-xs font-mono">
+              ● Live Data
+            </span>
+
           </div>
 
-          <div className="flex items-center gap-2 bg-card border border-border rounded-md px-4 py-2">
-            <Gauge className="h-4 w-4 text-primary" />
+
+          <div className="bg-card border border-border rounded-md px-4 py-2 flex items-center gap-2">
+
+            <Gauge className="h-4 w-4 text-primary"/>
 
             <span className="text-xs font-mono text-muted-foreground uppercase">
               Score
@@ -112,20 +125,23 @@ export default function Dashboard() {
               {campusMetrics.sustainabilityScore}
             </span>
 
-            <span className="text-xs font-mono text-primary">/ 100</span>
+            <span className="text-xs font-mono text-primary">/100</span>
+
           </div>
+
         </motion.div>
 
-        {/* -------------------- Metrics -------------------- */}
+
+        {/* Metrics */}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+
           <MetricCard
             label="Energy"
             value={campusMetrics.totalEnergy}
             unit="kWh"
             trend={campusMetrics.energyTrend}
             icon={Zap}
-            delay={0}
           />
 
           <MetricCard
@@ -134,7 +150,6 @@ export default function Dashboard() {
             unit="m³"
             trend={campusMetrics.waterTrend}
             icon={Droplets}
-            delay={0.05}
           />
 
           <MetricCard
@@ -143,7 +158,6 @@ export default function Dashboard() {
             unit="kg"
             trend={campusMetrics.wasteTrend}
             icon={Trash2}
-            delay={0.1}
           />
 
           <MetricCard
@@ -152,7 +166,6 @@ export default function Dashboard() {
             unit="tons"
             trend={campusMetrics.carbonTrend}
             icon={CloudRain}
-            delay={0.15}
           />
 
           <MetricCard
@@ -161,50 +174,53 @@ export default function Dashboard() {
             unit="pts"
             trend={campusMetrics.scoreTrend}
             icon={Gauge}
-            delay={0.2}
           />
+
         </div>
 
-        {/* -------------------- AI Forecast Panel -------------------- */}
 
-        <div className="bg-card border border-border rounded-md p-4">
+        {/* AI Forecast */}
+
+        <div className="bg-card border border-border rounded-md p-5">
+
           <p className="text-xs font-mono uppercase text-muted-foreground">
             AI Energy Forecast
           </p>
 
-          <p className="text-lg font-light">
+          <p className="text-2xl font-light text-primary tabular-nums">
             {forecast.predicted.toLocaleString()} kWh
           </p>
 
           <p className="text-xs text-muted-foreground font-mono">
             Confidence: {forecast.confidence}%
           </p>
+
         </div>
 
-        {/* -------------------- Charts -------------------- */}
+
+        {/* Charts */}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-          {/* Energy Chart */}
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="lg:col-span-2 bg-card border border-border rounded-md p-5"
-          >
+          {/* Energy Trend */}
+
+          <div className="lg:col-span-2 bg-card border border-border rounded-md p-5">
+
             <h3 className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-4">
               Energy Consumption Trend
             </h3>
 
             <ResponsiveContainer width="100%" height={240}>
+
               <AreaChart data={energyTrendData}>
-                <CartesianGrid strokeDasharray="3 3" />
 
-                <XAxis dataKey="month" />
-                <YAxis />
+                <CartesianGrid strokeDasharray="3 3"/>
 
-                <Tooltip content={<CustomTooltip />} />
+                <XAxis dataKey="month"/>
+                <YAxis/>
+
+                <Tooltip content={<CustomTooltip/>}/>
 
                 <Area
                   type="monotone"
@@ -212,7 +228,6 @@ export default function Dashboard() {
                   stroke="#888"
                   fill="#888"
                   strokeDasharray="4 4"
-                  name="Historical"
                 />
 
                 <Area
@@ -220,7 +235,6 @@ export default function Dashboard() {
                   dataKey="predicted"
                   stroke="#3b82f6"
                   fill="#3b82f6"
-                  name="AI Forecast"
                 />
 
                 <Area
@@ -228,26 +242,27 @@ export default function Dashboard() {
                   dataKey="actual"
                   stroke="#22c55e"
                   fill="#22c55e"
-                  name="Measured"
                 />
+
               </AreaChart>
+
             </ResponsiveContainer>
-          </motion.div>
 
-          {/* Waste Chart */}
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="bg-card border border-border rounded-md p-5"
-          >
+
+          {/* Waste Pie */}
+
+          <div className="bg-card border border-border rounded-md p-5">
+
             <h3 className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-4">
               Waste Distribution
             </h3>
 
             <ResponsiveContainer width="100%" height={240}>
+
               <PieChart>
+
                 <Pie
                   data={wasteData}
                   dataKey="value"
@@ -257,63 +272,90 @@ export default function Dashboard() {
                   innerRadius={50}
                   outerRadius={80}
                 >
-                  {wasteData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
+
+                  {wasteData.map((entry,i)=>(
+                    <Cell key={i} fill={entry.color}/>
                   ))}
+
                 </Pie>
 
-                <Tooltip content={<CustomTooltip />} />
-                <Legend />
+                <Tooltip content={<CustomTooltip/>}/>
+                <Legend/>
+
               </PieChart>
+
             </ResponsiveContainer>
-          </motion.div>
+
+          </div>
+
         </div>
 
-        {/* -------------------- Alerts + AI Insights -------------------- */}
+
+        {/* Alerts + AI Insights */}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
 
           {/* Alerts */}
 
           <div className="bg-card border border-border rounded-md p-5">
+
             <h3 className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-4">
               Active Alerts
             </h3>
 
             <div className="space-y-3">
-              {topAlerts.map((alert, i) => (
-                <AlertItem key={alert.id} alert={alert} index={i} />
+
+              {topAlerts.map((alert,i)=>(
+                <AlertItem key={alert.id} alert={alert} index={i}/>
               ))}
+
             </div>
+
           </div>
+
 
           {/* AI Insights */}
 
           <div className="bg-card border border-border rounded-md p-5">
+
             <h3 className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-4">
               AI Recommendations
             </h3>
 
             <div className="space-y-3">
-              {topInsights.map((insight, i) => (
+
+              {topInsights.map((insight)=>(
                 <div
                   key={insight.id}
                   className="border border-border bg-background/50 rounded-md p-4"
                 >
-                  <p className="text-sm">{insight.title}</p>
+
+                  <p className="text-sm">
+                    {insight.title}
+                  </p>
+
                   <p className="text-xs text-muted-foreground">
                     {insight.impact}
                   </p>
+
                   <p className="text-xs text-muted-foreground">
                     Confidence: {insight.confidence}%
                   </p>
+
                 </div>
               ))}
+
             </div>
+
           </div>
+
         </div>
 
+
       </div>
+
     </DashboardLayout>
+
   );
 }
