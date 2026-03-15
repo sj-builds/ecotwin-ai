@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -9,6 +9,8 @@ import {
 
 import { auth, googleProvider } from "@/lib/firebase";
 
+import { Loader2 } from "lucide-react";
+
 export default function LoginPage() {
 
   const navigate = useNavigate();
@@ -16,10 +18,13 @@ export default function LoginPage() {
   const [email,setEmail] = useState("");
   const [password,setPassword] = useState("");
   const [loading,setLoading] = useState(false);
-
+  const [error,setError] = useState("");
 
   const handleLogin = async (e:React.FormEvent)=>{
+
     e.preventDefault();
+
+    setError("");
     setLoading(true);
 
     try{
@@ -28,13 +33,14 @@ export default function LoginPage() {
 
       navigate("/dashboard",{replace:true});
 
-    }catch(error:any){
+    }catch(err:any){
 
-      alert(error.message);
+      setError(err.message);
 
     }
 
     setLoading(false);
+
   };
 
 
@@ -46,9 +52,9 @@ export default function LoginPage() {
 
       navigate("/dashboard",{replace:true});
 
-    }catch(error){
+    }catch{
 
-      alert("Google login failed");
+      setError("Google login failed");
 
     }
 
@@ -57,30 +63,87 @@ export default function LoginPage() {
 
   return(
 
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-900 via-black to-emerald-800 p-6">
+    <div className="
+      fixed
+      inset-0
+      flex
+      items-center
+      justify-center
+      bg-gradient-to-br
+      from-[#06110c]
+      via-[#0a1f17]
+      to-[#03130e]
+      overflow-hidden
+      "
+    >
+
+      {/* Background Glow */}
+
+      <div className="
+        absolute
+        w-[500px]
+        h-[500px]
+        bg-emerald-500/20
+        blur-[140px]
+        rounded-full
+        top-[-200px]
+        left-[-200px]
+      "/>
+
+      <div className="
+        absolute
+        w-[500px]
+        h-[500px]
+        bg-teal-400/20
+        blur-[140px]
+        rounded-full
+        bottom-[-200px]
+        right-[-200px]
+      "/>
+
+
+      {/* Login Card */}
 
       <motion.div
         initial={{opacity:0,y:20}}
         animate={{opacity:1,y:0}}
-        transition={{duration:0.5}}
-        className="w-full max-w-md backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-8 shadow-2xl"
+        transition={{duration:0.4}}
+        className="
+          w-full
+          max-w-md
+          bg-white/5
+          backdrop-blur-xl
+          border border-white/10
+          rounded-2xl
+          p-8
+          shadow-[0_0_40px_rgba(0,0,0,0.6)]
+        "
       >
 
         {/* Logo */}
 
         <div className="flex items-center gap-3 mb-8">
 
-          <div className="h-10 w-10 rounded-lg bg-emerald-500 flex items-center justify-center">
-            <span className="text-black font-bold">ET</span>
+          <div className="
+            h-10 w-10
+            rounded-lg
+            bg-emerald-500
+            flex
+            items-center
+            justify-center
+            font-bold
+            text-black
+          ">
+            ET
           </div>
 
           <div>
 
-            <h1 className="text-xl text-white font-semibold">
+            <h1 className="text-lg text-white font-semibold">
               EcoTwin AI
             </h1>
 
-            <p className="text-xs text-gray-400 uppercase tracking-wider">
+            <p className="text-xs text-gray-400 uppercase tracking-widest">
               Sustainable Campus Digital Twin
             </p>
 
@@ -93,7 +156,7 @@ export default function LoginPage() {
 
         <div className="mb-6">
 
-          <h2 className="text-lg text-white font-medium">
+          <h2 className="text-xl text-white font-semibold">
             System Access
           </h2>
 
@@ -104,7 +167,26 @@ export default function LoginPage() {
         </div>
 
 
-        {/* Login Form */}
+        {/* Error */}
+
+        {error && (
+
+          <div className="
+            bg-red-500/10
+            border border-red-500/20
+            text-red-400
+            text-sm
+            p-3
+            rounded-lg
+            mb-4
+          ">
+            {error}
+          </div>
+
+        )}
+
+
+        {/* Form */}
 
         <form onSubmit={handleLogin} className="space-y-4">
 
@@ -114,7 +196,19 @@ export default function LoginPage() {
             value={email}
             onChange={(e)=>setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-md bg-black/40 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400"
+            className="
+              w-full
+              px-4 py-3
+              rounded-lg
+              bg-black/40
+              border border-white/10
+              text-white
+              placeholder-gray-500
+              focus:outline-none
+              focus:border-emerald-400
+              focus:ring-1
+              focus:ring-emerald-400
+            "
           />
 
           <input
@@ -123,15 +217,44 @@ export default function LoginPage() {
             value={password}
             onChange={(e)=>setPassword(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-md bg-black/40 border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-400"
+            className="
+              w-full
+              px-4 py-3
+              rounded-lg
+              bg-black/40
+              border border-white/10
+              text-white
+              placeholder-gray-500
+              focus:outline-none
+              focus:border-emerald-400
+              focus:ring-1
+              focus:ring-emerald-400
+            "
           />
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-md bg-emerald-500 text-black font-semibold hover:bg-emerald-400 transition"
+            className="
+              w-full
+              py-3
+              rounded-lg
+              bg-emerald-500
+              text-black
+              font-semibold
+              hover:brightness-110
+              transition
+              flex
+              items-center
+              justify-center
+              gap-2
+            "
           >
+
+            {loading && <Loader2 className="animate-spin h-4 w-4"/>}
+
             {loading ? "Authenticating..." : "Authenticate"}
+
           </button>
 
         </form>
@@ -141,18 +264,30 @@ export default function LoginPage() {
 
         <div className="flex items-center my-6">
 
-          <div className="flex-1 h-px bg-gray-700"></div>
-          <span className="px-3 text-gray-400 text-sm">OR</span>
-          <div className="flex-1 h-px bg-gray-700"></div>
+          <div className="flex-1 h-px bg-white/10"/>
+
+          <span className="px-3 text-gray-400 text-xs">
+            OR
+          </span>
+
+          <div className="flex-1 h-px bg-white/10"/>
 
         </div>
 
 
-        {/* Google Login */}
+        {/* Google */}
 
         <button
           onClick={handleGoogleLogin}
-          className="w-full py-3 border border-gray-600 rounded-md text-white hover:bg-white/5 transition"
+          className="
+            w-full
+            py-3
+            border border-white/10
+            rounded-lg
+            text-white
+            hover:bg-white/5
+            transition
+          "
         >
           Sign in with Google
         </button>

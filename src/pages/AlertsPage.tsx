@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-import { AppSidebar } from "@/components/AppSidebar";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { AlertItem } from "@/components/AlertItem";
 import { alerts } from "@/data/mockData";
 
@@ -26,11 +26,9 @@ export default function AlertsPage() {
 
   return (
 
-    <div className="flex min-h-screen bg-gradient-to-br from-[#06110c] via-[#0a1f17] to-[#03130e] text-gray-200">
+    <DashboardLayout>
 
-      <AppSidebar />
-
-      <main className="flex-1 p-16 space-y-12">
+    <div className="space-y-8">
 
 
         {/* Header */}
@@ -51,7 +49,7 @@ export default function AlertsPage() {
 
         {/* Alert Summary */}
 
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
           {([
             ["high", "text-red-400", "bg-red-500/10"],
@@ -120,7 +118,7 @@ export default function AlertsPage() {
 
         {/* Alert List */}
 
-        <div className="space-y-6">
+        <div className="space-y-4">
 
           {filtered.map((alert, i) => (
             <AlertItem key={alert.id} alert={alert} index={i} />
@@ -138,9 +136,9 @@ export default function AlertsPage() {
 
         </div>
 
-      </main>
-
     </div>
+
+    </DashboardLayout>
 
   );
 
