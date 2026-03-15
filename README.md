@@ -38,7 +38,7 @@ EcoTwin AI transforms raw infrastructure data into **actionable sustainability i
 
 🔗 **Project Website**
 
-*(Replace with your deployed link)*
+https://ecotwin-ai-inky.vercel.app/
 
 ---
 
