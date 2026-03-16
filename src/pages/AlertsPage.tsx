@@ -28,8 +28,7 @@ export default function AlertsPage() {
 
     <DashboardLayout>
 
-    <div className="space-y-8">
-
+      <div className="w-full space-y-8">
 
         {/* Header */}
 
@@ -127,16 +126,14 @@ export default function AlertsPage() {
           {filtered.length === 0 && (
 
             <div className="text-center py-16 text-gray-400 text-xs uppercase tracking-widest">
-
               No alerts match current filters
-
             </div>
 
           )}
 
         </div>
 
-    </div>
+      </div>
 
     </DashboardLayout>
 

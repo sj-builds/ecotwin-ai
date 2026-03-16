@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/AppSidebar";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
@@ -7,31 +7,21 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
     <SidebarProvider>
 
-      <div className="
-        flex
-        min-h-screen
-        bg-gradient-to-br
-        from-[#06110c]
-        via-[#0a1f17]
-        to-[#03130e]
-        text-gray-200
-      ">
+      <AppSidebar />
 
-        <AppSidebar />
+      <SidebarInset>
 
         <main className="
-          flex-1
-          overflow-y-auto
-          px-6
-          py-8
+          min-h-screen
+          bg-gradient-to-br
+          from-[#06110c]
+          via-[#0a1f17]
+          to-[#03130e]
+          text-gray-200
+          p-8
         ">
 
-          <div className="
-            w-full
-            max-w-[1400px]
-            mx-auto
-            space-y-6
-          ">
+          <div className="space-y-8">
 
             {children}
 
@@ -39,7 +29,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
         </main>
 
-      </div>
+      </SidebarInset>
 
     </SidebarProvider>
 

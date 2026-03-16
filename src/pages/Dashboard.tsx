@@ -83,8 +83,7 @@ export default function Dashboard() {
 
     <DashboardLayout>
 
-      <div className="space-y-8 max-w-[1400px]">
-
+      <div className="space-y-8 w-full">
 
         {/* Header */}
 
@@ -101,9 +100,7 @@ export default function Dashboard() {
             </h1>
 
             <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest mt-1">
-
               Campus overview — {new Date().toLocaleDateString()}
-
             </p>
 
             <span className="text-green-500 text-xs font-mono">
@@ -111,7 +108,6 @@ export default function Dashboard() {
             </span>
 
           </div>
-
 
           <div className="bg-card border border-border rounded-md px-4 py-2 flex items-center gap-2">
 
@@ -130,7 +126,6 @@ export default function Dashboard() {
           </div>
 
         </motion.div>
-
 
         {/* Metrics */}
 

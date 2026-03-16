@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
 import { FileText, Download } from "lucide-react";
-import html2pdf from "html2pdf.js";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
-import { AppSidebar } from "@/components/AppSidebar";
 import { monthlyReport, campusMetrics } from "@/data/mockData";
 
 import {
@@ -15,36 +14,66 @@ import {
   ResponsiveContainer
 } from "recharts";
 
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+
+/* ---------------- PDF EXPORT ---------------- */
+
+async function exportReportPDF() {
+
+  const element = document.getElementById("report-content");
+  if (!element) return;
+
+  const canvas = await html2canvas(element, {
+    scale: 3,
+    useCORS: true,
+    backgroundColor: "#06110c"
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
+  const pdfWidth = 210;
+  const pdfHeight = 297;
+
+  const imgWidth = pdfWidth;
+  const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+
+  heightLeft -= pdfHeight;
+
+  while (heightLeft > 0) {
+
+    position = heightLeft - imgHeight;
+
+    pdf.addPage();
+
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+
+    heightLeft -= pdfHeight;
+  }
+
+  pdf.save("EcoTwin_Sustainability_Report.pdf");
+}
+
+/* ---------------- PAGE ---------------- */
+
 export default function ReportsPage() {
-
-  const handleExport = () => {
-
-    const element = document.getElementById("report-content");
-
-    if (!element) return;
-
-    const opt = {
-      margin: 10,
-      filename: "EcoTwin_Sustainability_Report.pdf",
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: {
-        unit: "mm",
-        format: "a4",
-        orientation: "portrait"
-      }
-    };
-
-    html2pdf().set(opt).from(element).save();
-  };
 
   return (
 
-    <div className="flex min-h-screen bg-gradient-to-br from-[#06110c] via-[#0a1f17] to-[#03130e] text-gray-200">
+    <DashboardLayout>
 
-      <AppSidebar />
-
-      <main className="flex-1 p-8 space-y-8">
+      <div className="space-y-8 w-full">
 
 
         {/* Header */}
@@ -68,7 +97,7 @@ export default function ReportsPage() {
           </div>
 
           <button
-            onClick={handleExport}
+            onClick={exportReportPDF}
             className="
               flex items-center gap-2
               px-4 py-2
@@ -83,6 +112,7 @@ export default function ReportsPage() {
           >
 
             <Download size={14} />
+
             Export PDF
 
           </button>
@@ -91,7 +121,7 @@ export default function ReportsPage() {
 
 
 
-        {/* REPORT CONTENT (THIS WILL EXPORT) */}
+        {/* EXPORTABLE CONTENT */}
 
         <div id="report-content" className="space-y-8">
 
@@ -184,9 +214,14 @@ export default function ReportsPage() {
 
                 <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
 
-                <XAxis dataKey="month" tick={{ fill: "#9ca3af", fontSize: 11 }} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: "#9ca3af", fontSize: 11 }}
+                />
 
-                <YAxis tick={{ fill: "#9ca3af", fontSize: 11 }} />
+                <YAxis
+                  tick={{ fill: "#9ca3af", fontSize: 11 }}
+                />
 
                 <Tooltip
                   contentStyle={{
@@ -292,9 +327,9 @@ export default function ReportsPage() {
 
         </div>
 
-      </main>
+      </div>
 
-    </div>
+    </DashboardLayout>
 
   );
 

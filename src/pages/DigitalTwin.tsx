@@ -25,7 +25,7 @@ export default function DigitalTwin() {
 
     <DashboardLayout>
 
-      <div className="space-y-6 max-w-[1400px]">
+      <div className="space-y-8 w-full">
 
         {/* Title */}
 
@@ -40,7 +40,6 @@ export default function DigitalTwin() {
           </p>
 
         </motion.div>
-
 
         {/* Layout */}
 

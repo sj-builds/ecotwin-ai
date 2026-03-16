@@ -7,7 +7,7 @@ import {
   BarChart3
 } from "lucide-react";
 
-import { AppSidebar } from "@/components/AppSidebar";
+import { DashboardLayout } from "@/components/DashboardLayout";
 
 import { aiInsights, energyTrendData } from "@/data/mockData";
 
@@ -46,11 +46,9 @@ export default function AIInsightsPage() {
 
   return (
 
-    <div className="flex min-h-screen bg-gradient-to-br from-[#06110c] via-[#0a1f17] to-[#03130e] text-gray-200">
+    <DashboardLayout>
 
-      <AppSidebar />
-
-      <main className="flex-1 p-8 space-y-8">
+      <div className="space-y-8 w-full">
 
         {/* Header */}
 
@@ -65,7 +63,6 @@ export default function AIInsightsPage() {
           </p>
 
         </motion.div>
-
 
 
         {/* Prediction Chart */}
@@ -86,17 +83,13 @@ export default function AIInsightsPage() {
 
           </div>
 
-
           <ResponsiveContainer width="100%" height={280}>
 
             <AreaChart data={energyTrendData}>
 
               <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
 
-              <XAxis
-                dataKey="month"
-                tick={{ fill: "#9ca3af", fontSize: 11 }}
-              />
+              <XAxis dataKey="month" tick={{ fill: "#9ca3af", fontSize: 11 }} />
 
               <YAxis tick={{ fill: "#9ca3af", fontSize: 11 }} />
 
@@ -131,7 +124,6 @@ export default function AIInsightsPage() {
 
           </ResponsiveContainer>
 
-
           <div className="mt-4 flex gap-6 text-xs text-gray-400">
 
             <span>MODEL: Isolation Forest + ARIMA</span>
@@ -143,8 +135,7 @@ export default function AIInsightsPage() {
         </motion.div>
 
 
-
-        {/* AI Insights Cards */}
+        {/* AI Insight Cards */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
 
@@ -206,7 +197,6 @@ export default function AIInsightsPage() {
         </div>
 
 
-
         {/* AI System Status */}
 
         <motion.div
@@ -225,7 +215,6 @@ export default function AIInsightsPage() {
             </h3>
 
           </div>
-
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
 
@@ -254,9 +243,9 @@ export default function AIInsightsPage() {
 
         </motion.div>
 
-      </main>
+      </div>
 
-    </div>
+    </DashboardLayout>
 
   );
 
