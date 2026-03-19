@@ -1,13 +1,28 @@
-export function generateAIForecast(data: { month: string; actual: number }[]) {
-  // simple trend projection: average growth of last 3 months
+export function generateForecastFeatures(
+  data: { month: string; actual: number }[]
+) {
+  if (data.length < 3) return null;
+
   const last = data.slice(-3);
-  const growth =
+
+  const growthRate =
     (last[2].actual - last[0].actual) / Math.max(1, last[0].actual);
-  const nextValue = Math.round(last[2].actual * (1 + growth));
+
+  const predicted = Math.round(last[2].actual * (1 + growthRate));
+
+  const avg =
+    last.reduce((sum, d) => sum + d.actual, 0) / last.length;
+
+  const variance =
+    last.reduce((sum, d) => sum + Math.pow(d.actual - avg, 2), 0) /
+    last.length;
+
+  const volatility = Math.sqrt(variance);
 
   return {
-    nextMonth: "Next Month",
-    predicted: nextValue,
-    confidence: Math.min(95, Math.max(70, Math.round(80 + growth * 50))),
+    predicted,
+    growthRate: Number(growthRate.toFixed(3)),
+    volatility: Number(volatility.toFixed(2)),
+    recentAverage: Math.round(avg),
   };
 }
