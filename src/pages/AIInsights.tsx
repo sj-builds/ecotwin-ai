@@ -1,252 +1,261 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Brain,
   TrendingUp,
   AlertTriangle,
   Lightbulb,
-  BarChart3
 } from "lucide-react";
 
 import { DashboardLayout } from "@/components/DashboardLayout";
+import CampusMap from "@/components/CampusMap";
 
-import { aiInsights, energyTrendData } from "@/data/mockData";
-
+import { campusData } from "@/data/campusData";
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from "recharts";
+  detectCampusAnomalies,
+  generateCampusPredictions,
+  generateCampusAlerts,
+} from "@/lib/campusAnalytics";
 
-const typeConfig = {
+import { askAI } from "@/lib/aiClient";
+
+// ---------------- CONFIG ----------------
+
+const typeConfig: any = {
   prediction: {
     icon: TrendingUp,
     color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/20"
   },
   anomaly: {
     icon: AlertTriangle,
     color: "text-red-400",
-    bg: "bg-red-500/10",
-    border: "border-red-500/20"
   },
   recommendation: {
     icon: Lightbulb,
     color: "text-amber-400",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/20"
-  }
+  },
 };
 
+// ---------------- COMPONENT ----------------
+
 export default function AIInsightsPage() {
+  const [insights, setInsights] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedInsight, setSelectedInsight] = useState<any>(null);
+  const [explanation, setExplanation] = useState("");
+
+  const [selectedBlock, setSelectedBlock] = useState<any>(null);
+  const [blockInsight, setBlockInsight] = useState("");
+
+  // ---------------- ANALYTICS ----------------
+
+  const anomalies = detectCampusAnomalies(campusData);
+  const predictions = generateCampusPredictions(campusData);
+  const alerts = generateCampusAlerts(campusData);
+
+  // ---------------- AI MAIN ----------------
+
+  const runAI = async () => {
+    try {
+      setLoading(true);
+
+      const context = {
+        campus: campusData,
+        anomalies,
+        predictions,
+        alerts,
+      };
+
+      const res = await askAI({
+        input: `
+Analyze campus system.
+Detect inefficiencies, predict load, and recommend optimizations.
+`,
+        context,
+        type: "analysis",
+      });
+
+      let parsed: any[] = [];
+
+      try {
+        const cleaned = res.reply.match(/\[.*\]/s)?.[0];
+        parsed = JSON.parse(cleaned || "[]");
+      } catch {
+        parsed = [];
+      }
+
+      parsed.sort((a, b) => b.confidence - a.confidence);
+
+      setInsights(parsed);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    runAI();
+    const interval = setInterval(runAI, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // ---------------- DRILL DOWN ----------------
+
+  const explainInsight = async (insight: any) => {
+    setSelectedInsight(insight);
+
+    const res = await askAI({
+      input: `Explain this insight deeply: ${insight.title}`,
+      context: { insight },
+    });
+
+    setExplanation(res.reply);
+  };
+
+  const analyzeBlock = async (block: any) => {
+    setSelectedBlock(block);
+
+    const res = await askAI({
+      input: `Analyze this campus block and identify inefficiencies`,
+      context: { block },
+    });
+
+    setBlockInsight(res.reply);
+  };
+
+  // ---------------- UI ----------------
 
   return (
-
     <DashboardLayout>
-
       <div className="space-y-8 w-full">
 
-        {/* Header */}
-
+        {/* HEADER */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-
-          <h1 className="text-3xl font-light text-white">
-            AI Insights Engine
+          <h1 className="text-3xl text-white">
+            Campus Digital Twin AI
           </h1>
-
-          <p className="text-sm text-gray-400 mt-1">
-            Machine learning analytics — anomaly detection & predictions
+          <p className="text-sm text-gray-400">
+            Real-time campus intelligence & optimization
           </p>
-
         </motion.div>
 
+        {/* DIGITAL TWIN MAP */}
+        <CampusMap data={campusData} onSelect={analyzeBlock} />
 
-        {/* Prediction Chart */}
-
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 shadow-[0_0_40px_rgba(0,0,0,0.4)]"
-        >
-
-          <div className="flex items-center gap-2 mb-6">
-
-            <BarChart3 className="text-emerald-400" size={18} />
-
-            <h3 className="text-sm text-white">
-              Predicted vs Actual Energy Consumption
+        {/* BLOCK ANALYSIS */}
+        {selectedBlock && (
+          <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+            <h3 className="text-white text-sm mb-2">
+              {selectedBlock.block} Analysis
             </h3>
-
+            <p className="text-xs text-gray-400">
+              {blockInsight || "Analyzing..."}
+            </p>
           </div>
+        )}
 
-          <ResponsiveContainer width="100%" height={280}>
+        {/* ALERTS */}
+        <div className="space-y-3">
+          <h3 className="text-sm text-white">Campus Alerts</h3>
 
-            <AreaChart data={energyTrendData}>
-
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-
-              <XAxis dataKey="month" tick={{ fill: "#9ca3af", fontSize: 11 }} />
-
-              <YAxis tick={{ fill: "#9ca3af", fontSize: 11 }} />
-
-              <Tooltip
-                contentStyle={{
-                  background: "#020617",
-                  border: "1px solid #1f2937",
-                  borderRadius: 8,
-                  fontSize: 12
-                }}
-              />
-
-              <Area
-                type="monotone"
-                dataKey="predicted"
-                stroke="#38bdf8"
-                fill="rgba(56,189,248,0.15)"
-                strokeWidth={2}
-                name="ML Prediction"
-              />
-
-              <Area
-                type="monotone"
-                dataKey="actual"
-                stroke="#34d399"
-                fill="rgba(52,211,153,0.15)"
-                strokeWidth={2}
-                name="Actual"
-              />
-
-            </AreaChart>
-
-          </ResponsiveContainer>
-
-          <div className="mt-4 flex gap-6 text-xs text-gray-400">
-
-            <span>MODEL: Isolation Forest + ARIMA</span>
-            <span>ACCURACY: 94.2%</span>
-            <span>UPDATED: 2h ago</span>
-
-          </div>
-
-        </motion.div>
-
-
-        {/* AI Insight Cards */}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-
-          {aiInsights.map((insight, i) => {
-
-            const config = typeConfig[insight.type];
-            const Icon = config.icon;
-
-            return (
-
-              <motion.div
-                key={insight.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15 + i * 0.05 }}
-                className={`bg-white/5 backdrop-blur-xl border ${config.border} rounded-xl p-5 hover:bg-white/10 transition`}
-              >
-
-                <div className="flex items-center gap-2 mb-3">
-
-                  <div className={`p-2 rounded-lg ${config.bg}`}>
-                    <Icon size={16} className={config.color}/>
-                  </div>
-
-                  <span className={`text-xs uppercase ${config.color}`}>
-                    {insight.type}
-                  </span>
-
-                  <span className="ml-auto text-xs text-gray-400">
-                    {insight.confidence}%
-                  </span>
-
-                </div>
-
-                <h3 className="text-sm text-white mb-2">
-                  {insight.title}
-                </h3>
-
-                <p className="text-xs text-gray-400 mb-4">
-                  {insight.description}
-                </p>
-
-                <div className="flex justify-between text-xs border-t border-white/10 pt-3">
-
-                  <span className="text-gray-400">Impact</span>
-
-                  <span className={config.color}>
-                    {insight.impact}
-                  </span>
-
-                </div>
-
-              </motion.div>
-
-            );
-
-          })}
-
+          {alerts.map((a, i) => (
+            <div
+              key={i}
+              className={`p-3 rounded-lg text-xs border ${
+                a.severity === "high"
+                  ? "border-red-500 text-red-400"
+                  : "border-yellow-500 text-yellow-400"
+              }`}
+            >
+              {a.block}: {a.message}
+            </div>
+          ))}
         </div>
 
+        {/* AI INSIGHTS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {loading ? (
+            <p className="text-gray-400 text-sm">
+              Analyzing campus...
+            </p>
+          ) : (
+            insights.map((insight, i) => {
+              const config =
+                typeConfig[insight.type] || typeConfig.recommendation;
+              const Icon = config.icon;
 
-        {/* AI System Status */}
+              return (
+                <motion.div
+                  key={i}
+                  onClick={() => explainInsight(insight)}
+                  className="cursor-pointer bg-white/5 border rounded-xl p-5 hover:bg-white/10"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon size={14} className={config.color} />
+                    <span className="text-xs text-white">
+                      {insight.type}
+                    </span>
+                  </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6"
-        >
+                  <h3 className="text-sm text-white">
+                    {insight.title}
+                  </h3>
 
-          <div className="flex items-center gap-2 mb-6">
+                  <p className="text-xs text-gray-400">
+                    {insight.description}
+                  </p>
+                </motion.div>
+              );
+            })
+          )}
+        </div>
 
-            <Brain className="text-emerald-400" size={18} />
-
-            <h3 className="text-sm text-white">
-              AI System Status
+        {/* INSIGHT DRILL-DOWN */}
+        {selectedInsight && (
+          <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+            <h3 className="text-white text-sm mb-2">
+              Deep Insight Analysis
             </h3>
 
+            <p className="text-xs text-gray-400">
+              {explanation || "Loading..."}
+            </p>
+          </div>
+        )}
+
+        {/* SYSTEM STATUS */}
+        <motion.div className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="text-emerald-400" size={18} />
+            <h3 className="text-sm text-white">System Status</h3>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <p className="text-2xl text-white">{insights.length}</p>
+              <p className="text-xs text-gray-400">Insights</p>
+            </div>
 
-            {[
-              { label: "Models Active", value: "4" },
-              { label: "Predictions / day", value: "1,247" },
-              { label: "Anomalies Detected", value: "23" },
-              { label: "Avg Response", value: "120ms" }
-            ].map(stat => (
+            <div className="text-center">
+              <p className="text-2xl text-white">{anomalies.length}</p>
+              <p className="text-xs text-gray-400">Anomalies</p>
+            </div>
 
-              <div key={stat.label} className="text-center">
+            <div className="text-center">
+              <p className="text-2xl text-white">{alerts.length}</p>
+              <p className="text-xs text-gray-400">Alerts</p>
+            </div>
 
-                <p className="text-2xl text-white font-light">
-                  {stat.value}
-                </p>
-
-                <p className="text-xs text-gray-400 mt-1">
-                  {stat.label}
-                </p>
-
-              </div>
-
-            ))}
-
+            <div className="text-center">
+              <p className="text-2xl text-white">Live</p>
+              <p className="text-xs text-gray-400">Status</p>
+            </div>
           </div>
-
         </motion.div>
 
       </div>
-
     </DashboardLayout>
-
   );
-
 }
